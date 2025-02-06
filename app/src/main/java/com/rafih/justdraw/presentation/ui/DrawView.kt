@@ -61,19 +61,20 @@ class DrawView: View {
 
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
-                drawPath.brushColor = currentBrushColor
-                drawPath.brushSize = currentBrushSize
+                drawPath = CustomPath(currentBrushColor,currentBrushSize)
                 drawPath.moveTo(x,y)
+                pathList.add(drawPath)
             }
 
-            MotionEvent.ACTION_MOVE -> drawPath.lineTo(x,y)
+            MotionEvent.ACTION_MOVE -> {
+                drawPath.lineTo(x,y)
+                invalidate()
+            }
             MotionEvent.ACTION_UP -> {
-                pathList.add(drawPath)
                 drawPath = CustomPath(currentBrushColor,currentBrushSize)
             }
         }
 
-        invalidate()
         return true
     }
 
