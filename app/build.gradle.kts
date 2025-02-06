@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
 }
 
@@ -67,5 +68,4 @@ dependencies {
     ksp("com.google.dagger:hilt-android-compiler:2.55")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("com.github.ibrahimsn98:SmoothBottomBar:1.7.9")
 }
