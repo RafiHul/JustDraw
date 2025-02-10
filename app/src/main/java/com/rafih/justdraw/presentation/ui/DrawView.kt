@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import java.util.Stack
 
 class DrawView: View {
 
@@ -16,6 +17,9 @@ class DrawView: View {
     private lateinit var myPaint: Paint
     private lateinit var myBitmap: Bitmap
     private var myCanvas: Canvas? = null
+
+    private val undoStack = Stack<Bitmap>()
+    private val redoStack = Stack<Bitmap>()
 
     constructor(context: Context) : this(context, null) {
         setUpComponent()
@@ -64,6 +68,7 @@ class DrawView: View {
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
                 drawPath = Path()
+                saveBitmapForUndo()
                 drawPath.moveTo(x,y)
             }
 
@@ -82,6 +87,35 @@ class DrawView: View {
 
     fun changeColor(){
         myPaint.color = Color.RED
+    }
+
+    private fun saveBitmapForUndo(){
+        val bitmap = Bitmap.createBitmap(myBitmap)
+        undoStack.push(bitmap)
+
+        redoStack.clear()
+    }
+
+    fun undo(){
+        if (undoStack.isNotEmpty()){
+
+            redoStack.push(Bitmap.createBitmap(myBitmap))
+
+            myBitmap = undoStack.pop()
+            myCanvas = Canvas(myBitmap)
+            invalidate()
+        }
+    }
+
+    fun redo(){
+        if(redoStack.isNotEmpty()){
+
+            undoStack.push(Bitmap.createBitmap(myBitmap))
+
+            myBitmap = redoStack.pop()
+            myCanvas = Canvas(myBitmap)
+            invalidate()
+        }
     }
 
     companion object{
