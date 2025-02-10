@@ -1,6 +1,7 @@
 package com.rafih.justdraw.presentation.ui
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -11,12 +12,10 @@ import android.view.View
 
 class DrawView: View {
 
-    private var currentBrushColor = defaultBrushColor
-    private var currentBrushSize = defaultBrushSize
-
-    private val pathList = ArrayList<CustomPath>()
-    private lateinit var drawPath: CustomPath
+    private lateinit var drawPath: Path
     private lateinit var myPaint: Paint
+    private lateinit var myBitmap: Bitmap
+    private var myCanvas: Canvas? = null
 
     constructor(context: Context) : this(context, null) {
         setUpComponent()
@@ -40,18 +39,21 @@ class DrawView: View {
             strokeWidth = defaultBrushSize
             style = Paint.Style.STROKE
             isAntiAlias = true
+            isFilterBitmap = true
             strokeJoin = Paint.Join.ROUND
         }
-        drawPath = CustomPath(defaultBrushColor,defaultBrushSize)
+        drawPath = Path()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        for (i in pathList){
-            myPaint.color = i.brushColor
-            myPaint.strokeWidth = i.brushSize
-            canvas.drawPath(i,myPaint)
-        }
+        canvas.drawBitmap(myBitmap, 0f, 0f, myPaint)
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        myBitmap = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888)
+        myCanvas = Canvas(myBitmap)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -61,27 +63,29 @@ class DrawView: View {
 
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
-                drawPath = CustomPath(currentBrushColor,currentBrushSize)
+                drawPath = Path()
                 drawPath.moveTo(x,y)
-                pathList.add(drawPath)
             }
 
             MotionEvent.ACTION_MOVE -> {
                 drawPath.lineTo(x,y)
+                myCanvas!!.drawPath(drawPath,myPaint) //draw path to bitmap from canvas
                 invalidate()
             }
             MotionEvent.ACTION_UP -> {
-                drawPath = CustomPath(currentBrushColor,currentBrushSize)
+                drawPath = Path()
             }
         }
 
         return true
     }
 
+    fun changeColor(){
+        myPaint.color = Color.RED
+    }
+
     companion object{
         private val defaultBrushColor = Color.BLACK
         private val defaultBrushSize = 5f
     }
-
-    private data class CustomPath(var brushColor: Int, var brushSize: Float): Path()
 }
