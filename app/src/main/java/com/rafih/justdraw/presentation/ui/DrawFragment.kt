@@ -39,10 +39,10 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         }
 
         binding.apply {
-            button4.setOnClickListener{
+            imageViewUndo.setOnClickListener{
                 drawView.undo()
             }
-            button5.setOnClickListener{
+            imageViewRedo.setOnClickListener{
                 drawView.redo()
             }
         }
