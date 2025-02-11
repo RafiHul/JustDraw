@@ -1,13 +1,14 @@
 package com.rafih.justdraw.presentation.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.rafih.justdraw.R
 import com.rafih.justdraw.databinding.FragmentDrawBinding
+import com.rafih.justdraw.presentation.adapter.ColorPaletteAdapter
 
 class DrawFragment : Fragment(R.layout.fragment_draw) {
 
@@ -18,13 +19,34 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         _binding = FragmentDrawBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val drawView = binding.drawView
+        val arrColorPallete = resources.getStringArray(R.array.default_color_palettes)
+
+        val colorPaletteAdapter = ColorPaletteAdapter(arrColorPallete){
+            drawView.changeColor(it)
+        }
+
+        binding.recyclerViewColorPalette.apply {
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
+            adapter = colorPaletteAdapter
+        }
+
+        binding.apply {
+            button4.setOnClickListener{
+                drawView.undo()
+            }
+            button5.setOnClickListener{
+                drawView.redo()
+            }
+        }
+
     }
 
     override fun onDestroy() {

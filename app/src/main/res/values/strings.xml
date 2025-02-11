@@ -1,5 +1,20 @@
 <resources>
     <string name="app_name">JustDraw</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="default_color_palettes">
+        <item>#000000</item>
+        <item>#CECECE</item>
+        <item>#E8E8E8</item>
+        <item>#D20103</item>
+        <item>#8D6F64</item>
+        <item>#E4080A</item>
+        <item>#EFC3CA</item>
+        <item>#FE9900</item>
+        <item>#7DDA58</item>
+        <item>#98F5F9</item>
+        <item>#FFDE59</item>
+        <item>#5DE2E7</item>
+        <item>#060270</item>
+        <item>#CC6CE7</item>
+    </string-array>
 </resources>

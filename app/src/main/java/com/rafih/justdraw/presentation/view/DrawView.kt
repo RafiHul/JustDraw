@@ -1,4 +1,4 @@
-package com.rafih.justdraw.presentation.ui
+package com.rafih.justdraw.presentation.view
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -56,7 +56,7 @@ class DrawView: View {
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        myBitmap = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888)
+        myBitmap = Bitmap.createBitmap(w,h, Bitmap.Config.ARGB_8888)
         myCanvas = Canvas(myBitmap)
     }
 
@@ -67,7 +67,7 @@ class DrawView: View {
 
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
-                drawPath = Path()
+//                drawPath = Path()
                 saveBitmapForUndo()
                 drawPath.moveTo(x,y)
             }
@@ -85,8 +85,8 @@ class DrawView: View {
         return true
     }
 
-    fun changeColor(){
-        myPaint.color = Color.RED
+    fun changeColor(colorCode: Int){
+        myPaint.color = colorCode
     }
 
     private fun saveBitmapForUndo(){
