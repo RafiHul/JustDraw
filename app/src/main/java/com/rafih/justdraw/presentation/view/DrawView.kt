@@ -6,6 +6,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Xfermode
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -20,6 +23,8 @@ class DrawView: View {
 
     private val undoStack = Stack<Bitmap>()
     private val redoStack = Stack<Bitmap>()
+    private var previousBrushColor = defaultBrushColor
+    var isErased = false
 
     constructor(context: Context) : this(context, null) {
         setUpComponent()
@@ -47,6 +52,7 @@ class DrawView: View {
             strokeJoin = Paint.Join.ROUND
         }
         drawPath = Path()
+        setBackgroundColor(Color.WHITE)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -86,7 +92,10 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
-        myPaint.color = colorCode
+        if(!isErased){
+            previousBrushColor = myPaint.color
+            myPaint.color = colorCode
+        }
     }
 
     private fun saveBitmapForUndo(){
@@ -116,6 +125,18 @@ class DrawView: View {
             myCanvas = Canvas(myBitmap)
             invalidate()
         }
+    }
+
+    fun setErased(){
+        if(!isErased){
+            changeColor(Color.WHITE)
+            myPaint.strokeWidth = defaultBrushSize // TODO: ini ganti pakai size penghapus
+        } else {
+            myPaint.color = previousBrushColor
+            myPaint.strokeWidth = defaultBrushSize
+        }
+
+        isErased = !isErased
     }
 
     companion object{

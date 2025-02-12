@@ -28,7 +28,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="baseline_redo_24" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="eraser_svgrepo_com" />
+                            <entry key="sourceFile" value="$USER_HOME$/Downloads/SVG/eraser-svgrepo-com.svg" />
                           </map>
                         </option>
                       </PersistentState>

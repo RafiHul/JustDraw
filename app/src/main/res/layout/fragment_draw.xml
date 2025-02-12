@@ -61,19 +61,11 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/button4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Button" />
-
-            <Button
-                android:id="@+id/button5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Button" />
+            <ImageView
+                android:id="@+id/imageViewEraser"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/eraser_svgrepo_com" />
 
         </LinearLayout>
     </HorizontalScrollView>

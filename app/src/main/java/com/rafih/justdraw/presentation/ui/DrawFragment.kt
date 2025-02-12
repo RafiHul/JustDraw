@@ -1,5 +1,6 @@
 package com.rafih.justdraw.presentation.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -44,6 +45,17 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             }
             imageViewRedo.setOnClickListener{
                 drawView.redo()
+            }
+            imageViewEraser.setOnClickListener{
+
+                drawView.setErased()
+
+                if (drawView.isErased){
+                    binding.imageViewEraser.setBackgroundColor(Color.BLACK)
+                } else {
+                    binding.imageViewEraser.setBackgroundColor(Color.WHITE)
+                }
+
             }
         }
 
