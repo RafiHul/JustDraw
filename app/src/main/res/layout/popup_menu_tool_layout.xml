@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:backgroundTint="#AD2F2F"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/buttonBrushTool"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="Brush"
+        android:src="@drawable/baseline_brush_24" />
+
+    <ImageView
+        android:id="@+id/buttonEraserTool"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="Eraser"
+        android:src="@drawable/eraser_svgrepo_com" />
+</LinearLayout>

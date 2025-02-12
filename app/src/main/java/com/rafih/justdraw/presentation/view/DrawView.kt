@@ -6,12 +6,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
-import android.graphics.Xfermode
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.rafih.justdraw.util.DrawTool
 import java.util.Stack
 
 class DrawView: View {
@@ -98,6 +96,21 @@ class DrawView: View {
         }
     }
 
+    fun changeUseTool(tool: DrawTool){
+        when(tool){
+            DrawTool.BRUSH -> {
+                myPaint.color = previousBrushColor
+                myPaint.strokeWidth = defaultBrushSize
+                isErased = false
+            }
+            DrawTool.ERASER -> {
+                changeColor(Color.WHITE)
+                myPaint.strokeWidth = defaultBrushSize // TODO: ini ganti pakai size penghapus
+                isErased = true
+            }
+        }
+    }
+
     private fun saveBitmapForUndo(){
         val bitmap = Bitmap.createBitmap(myBitmap)
         undoStack.push(bitmap)
@@ -125,18 +138,6 @@ class DrawView: View {
             myCanvas = Canvas(myBitmap)
             invalidate()
         }
-    }
-
-    fun setErased(){
-        if(!isErased){
-            changeColor(Color.WHITE)
-            myPaint.strokeWidth = defaultBrushSize // TODO: ini ganti pakai size penghapus
-        } else {
-            myPaint.color = previousBrushColor
-            myPaint.strokeWidth = defaultBrushSize
-        }
-
-        isErased = !isErased
     }
 
     companion object{

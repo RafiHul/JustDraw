@@ -62,10 +62,10 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/imageViewEraser"
+                android:id="@+id/imageViewOpenPopupTool"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/eraser_svgrepo_com" />
+                android:src="@drawable/baseline_brush_24" />
 
         </LinearLayout>
     </HorizontalScrollView>
