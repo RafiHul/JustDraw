@@ -7,12 +7,19 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import com.rafih.justdraw.tools.Brush
+import com.rafih.justdraw.tools.Eraser
+import com.rafih.justdraw.tools.Tools
 import com.rafih.justdraw.util.DrawTool
 import java.util.Stack
 
 class DrawView: View {
+
+    private val mainTool = MainTool(Brush(),Eraser())
+    private val currentTool: Tools = mainTool.brush //default first tool used
 
     private lateinit var drawPath: Path
     private lateinit var myPaint: Paint
@@ -22,7 +29,6 @@ class DrawView: View {
     private val undoStack = Stack<Bitmap>()
     private val redoStack = Stack<Bitmap>()
     private var previousBrushColor = defaultBrushColor
-    var isErased = false
 
     constructor(context: Context) : this(context, null) {
         setUpComponent()
@@ -41,14 +47,7 @@ class DrawView: View {
     }
 
     private fun setUpComponent(){
-        myPaint = Paint().apply {
-            color = defaultBrushColor
-            strokeWidth = defaultBrushSize
-            style = Paint.Style.STROKE
-            isAntiAlias = true
-            isFilterBitmap = true
-            strokeJoin = Paint.Join.ROUND
-        }
+        myPaint = currentTool
         drawPath = Path()
         setBackgroundColor(Color.WHITE)
     }
@@ -90,23 +89,22 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
-        if(!isErased){
-            previousBrushColor = myPaint.color
-            myPaint.color = colorCode
+        if(currentTool is Brush){ // TODO: do it with != Eraser
+            currentTool.color = colorCode
         }
     }
 
     fun changeUseTool(tool: DrawTool){
         when(tool){
             DrawTool.BRUSH -> {
-                myPaint.color = previousBrushColor
-                myPaint.strokeWidth = defaultBrushSize
-                isErased = false
+                // TODO: tambahkan width/size nya juga
+                myPaint = mainTool.brush.apply {
+                    color = previousBrushColor
+                }
             }
             DrawTool.ERASER -> {
-                changeColor(Color.WHITE)
-                myPaint.strokeWidth = defaultBrushSize // TODO: ini ganti pakai size penghapus
-                isErased = true
+                previousBrushColor = myPaint.color
+                myPaint = mainTool.eraser
             }
         }
     }
@@ -142,6 +140,8 @@ class DrawView: View {
 
     companion object{
         private val defaultBrushColor = Color.BLACK
-        private val defaultBrushSize = 5f
+        private val defaultToolSize = 5f
     }
+
+    data class MainTool(val brush: Brush, val eraser: Eraser)
 }

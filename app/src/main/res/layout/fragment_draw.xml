@@ -78,5 +78,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.slider.Slider
+        android:id="@+id/sliderSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="ini slider"
+        android:valueFrom="0.0"
+        android:valueTo="100.0"
+        app:layout_constraintBottom_toBottomOf="@+id/drawView" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

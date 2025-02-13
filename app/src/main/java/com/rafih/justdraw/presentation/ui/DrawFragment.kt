@@ -45,6 +45,8 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         val popupView = LayoutInflater.from(context).inflate(R.layout.popup_menu_tool_layout,null)
         popUpMenuTool = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
         popUpMenuToolBinding = PopupMenuToolLayoutBinding.bind(popupView)
+        setUpToolButton(popUpMenuToolBinding.buttonBrushTool, DrawTool.BRUSH)
+        setUpToolButton(popUpMenuToolBinding.buttonEraserTool, DrawTool.ERASER)
 
         binding.recyclerViewColorPalette.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
@@ -64,9 +66,6 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
                     popUpMenuTool.dismiss()
                 } else {
                     popUpMenuTool.showAsDropDown(it,0,-it.height * 3)
-
-                    setUpToolButton(popUpMenuToolBinding.buttonBrushTool, DrawTool.BRUSH)
-                    setUpToolButton(popUpMenuToolBinding.buttonEraserTool, DrawTool.ERASER)
                 }
 
             }
