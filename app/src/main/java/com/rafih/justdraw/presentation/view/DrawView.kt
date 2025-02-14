@@ -110,21 +110,20 @@ class DrawView: View {
         invalidate()
     }
 
-    fun changeUseTool(tool: DrawTool){
+    fun changeUseTool(tool: DrawTool): Float {
         when(tool){
             DrawTool.BRUSH -> {
                 // TODO: tambahkan width/size nya juga
-                myPaint = mainTool.brush.apply {
-                    color = previousBrushColor
-                }
+                myPaint = mainTool.brush
                 currentTool = mainTool.brush
             }
             DrawTool.ERASER -> {
-                previousBrushColor = myPaint.color
                 myPaint = mainTool.eraser
                 currentTool = mainTool.eraser
             }
         }
+
+        return currentTool.toolsSize //return toolsize for slider
     }
 
     private fun saveBitmapForUndo(){

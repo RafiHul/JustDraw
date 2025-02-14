@@ -103,7 +103,8 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
     fun setUpToolButton(button: View, tool: DrawTool){
         button.setOnClickListener{
             changeUseToolImage(tool)
-            drawView.changeUseTool(tool)
+            val toolsSize = drawView.changeUseTool(tool) //return picked tools size
+            binding.sliderSize.value = toolsSize
             popUpMenuTool.dismiss()
         }
     }
