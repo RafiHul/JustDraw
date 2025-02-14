@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.android.material.slider.Slider
 import com.rafih.justdraw.R
 import com.rafih.justdraw.databinding.FragmentDrawBinding
 import com.rafih.justdraw.databinding.PopupMenuToolLayoutBinding
@@ -67,9 +68,28 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
                 } else {
                     popUpMenuTool.showAsDropDown(it,0,-it.height * 3)
                 }
-
             }
         }
+
+        binding.sliderSize.addOnSliderTouchListener(object : Slider.OnSliderTouchListener{
+            override fun onStartTrackingTouch(slider: Slider) {
+            }
+
+            override fun onStopTrackingTouch(slider: Slider) {
+            }
+
+        })
+
+        binding.sliderSize.addOnChangeListener(object : Slider.OnChangeListener{
+            override fun onValueChange(
+                slider: Slider,
+                value: Float,
+                fromUser: Boolean
+            ) {
+                drawView.changeToolSize(slider.value)
+            }
+
+        })
 
     }
 
