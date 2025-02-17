@@ -12,13 +12,16 @@ import android.view.MotionEvent
 import android.view.View
 import com.rafih.justdraw.tools.Brush
 import com.rafih.justdraw.tools.Eraser
+import com.rafih.justdraw.tools.FillColor
 import com.rafih.justdraw.tools.Tools
 import com.rafih.justdraw.util.DrawTool
+import java.util.LinkedList
+import java.util.Queue
 import java.util.Stack
 
 class DrawView: View {
 
-    private val mainTool = MainTool(Brush(),Eraser())
+    private val mainTool = MainTool(Brush(), Eraser(), FillColor())
     private val touchIndicator = TouchIndicator(null,null)
     var currentTool: Tools = mainTool.brush //default first tool used
 
@@ -92,13 +95,21 @@ class DrawView: View {
 //                drawPath = Path()
                 saveBitmapForUndo()
                 touchIndicator.setTouchIndicatorPosition(x,y)
-                drawPath.moveTo(x,y)
-            }
 
+                if(currentTool is FillColor){
+                    floodFill(x,y)
+                } else {
+                    drawPath.moveTo(x,y)
+                }
+
+            }
             MotionEvent.ACTION_MOVE -> {
-                drawPath.lineTo(x,y)
+                if (currentTool !is FillColor){
+                    drawPath.lineTo(x,y)
+                    myCanvas!!.drawPath(drawPath,myPaint) //draw path to bitmap from canvas
+                }
+
                 touchIndicator.setTouchIndicatorPosition(x,y)
-                myCanvas!!.drawPath(drawPath,myPaint) //draw path to bitmap from canvas
             }
             MotionEvent.ACTION_UP -> {
                 touchIndicator.setTouchIndicatorPosition(null,null)
@@ -111,7 +122,7 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
-        if(currentTool is Brush){ // TODO: do it with != Eraser
+        if(currentTool !is Eraser){ //if not eraser
             currentTool.color = colorCode
         }
     }
@@ -132,9 +143,46 @@ class DrawView: View {
                 myPaint = mainTool.eraser
                 currentTool = mainTool.eraser
             }
+            DrawTool.FILLCOLOR -> {
+                myPaint = mainTool.fillColor
+                currentTool = mainTool.fillColor
+            }
         }
 
         return currentTool.toolsSize //return toolsize for slider
+    }
+
+
+    // TODO: Not optimized very slowwwwwwwwwwwww
+    private fun floodFill(x: Float,y: Float){
+        val newColor = currentTool.color
+
+        if (x < 0 || x >= myBitmap.width || y < 0 || y >= myBitmap.height){
+            return
+        }
+
+        val targetColor = myBitmap.getPixel(x.toInt(),y.toInt())
+        if (targetColor == newColor){
+            return
+        }
+
+        val queue: Queue<Pair<Float, Float>> = LinkedList()
+        queue.add(Pair(x,y))
+
+        while (queue.isNotEmpty()){
+            val (px,py) = queue.poll()
+
+            if (px < 0 || px >= myBitmap.width || py < 0 || py >= myBitmap.height || myBitmap.getPixel(px.toInt(),py.toInt()) != targetColor){
+                continue
+            }
+
+            myBitmap.setPixel(px.toInt(),py.toInt(),newColor)
+
+            queue.add(Pair(px+1,py))
+            queue.add(Pair(px-1,py))
+            queue.add(Pair(px,py+1))
+            queue.add(Pair(px,py-1))
+        }
     }
 
     private fun saveBitmapForUndo(){
@@ -175,7 +223,7 @@ class DrawView: View {
         }
     }
 
-    data class MainTool(val brush: Brush, val eraser: Eraser)
+    data class MainTool(val brush: Brush, val eraser: Eraser, val fillColor: FillColor)
 
     data class TouchIndicator(var x: Float?, var y: Float?){
         fun setTouchIndicatorPosition(nx: Float?,ny: Float?){

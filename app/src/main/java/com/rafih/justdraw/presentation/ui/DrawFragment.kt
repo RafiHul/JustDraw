@@ -48,6 +48,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         popUpMenuToolBinding = PopupMenuToolLayoutBinding.bind(popupView)
         setUpToolButton(popUpMenuToolBinding.buttonBrushTool, DrawTool.BRUSH)
         setUpToolButton(popUpMenuToolBinding.buttonEraserTool, DrawTool.ERASER)
+        setUpToolButton(popUpMenuToolBinding.buttonFillColor, DrawTool.FILLCOLOR)
 
         binding.recyclerViewColorPalette.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
@@ -97,6 +98,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         when(tool){
             DrawTool.BRUSH -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.baseline_brush_24)
             DrawTool.ERASER -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.eraser_svgrepo_com)
+            DrawTool.FILLCOLOR -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.baseline_format_paint_24)
         }
     }
 
