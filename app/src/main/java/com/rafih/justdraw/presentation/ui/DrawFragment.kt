@@ -71,6 +71,8 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             }
         }
 
+        binding.sliderSize.value = drawView.currentTool.toolsSize
+
         binding.sliderSize.addOnSliderTouchListener(object : Slider.OnSliderTouchListener{
             override fun onStartTrackingTouch(slider: Slider) {
             }
@@ -88,9 +90,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             ) {
                 drawView.changeToolSize(slider.value)
             }
-
         })
-
     }
 
     fun changeUseToolImage(tool: DrawTool){

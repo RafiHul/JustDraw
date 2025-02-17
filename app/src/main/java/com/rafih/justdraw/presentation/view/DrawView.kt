@@ -19,7 +19,8 @@ import java.util.Stack
 class DrawView: View {
 
     private val mainTool = MainTool(Brush(),Eraser())
-    private var currentTool: Tools = mainTool.brush //default first tool used
+    private val touchIndicator = TouchIndicator(null,null)
+    var currentTool: Tools = mainTool.brush //default first tool used
 
     private lateinit var drawPath: Path
     private lateinit var myPaint: Paint
@@ -28,7 +29,6 @@ class DrawView: View {
 
     private val undoStack = Stack<Bitmap>()
     private val redoStack = Stack<Bitmap>()
-    private var previousBrushColor = defaultBrushColor
     private var onDrawCircleToolSizeIndicator = false
 
     constructor(context: Context) : this(context, null) {
@@ -59,9 +59,18 @@ class DrawView: View {
         val centerX = width / 2f
         val centerY = (height / 2f) + (width / 4f)
 
+        //main draw
         canvas.drawBitmap(myBitmap, 0f, 0f, myPaint)
 
-        if(onDrawCircleToolSizeIndicator){ //draw circle tool size indicator
+        //indicator lingkaran ketika user menggambar di layar
+        val touchIndicatorX = touchIndicator.x
+        val touchIndicatorY = touchIndicator.y
+        if (touchIndicatorX != null && touchIndicatorY != null){
+            canvas.drawCircle(touchIndicatorX,touchIndicatorY,currentTool.toolsSize,circleOutline)
+        }
+
+        //indicator lingkaran ketika user memilih size tool
+        if(onDrawCircleToolSizeIndicator){
             canvas.drawCircle(centerX,centerY,currentTool.toolsSize, circleOutline)
             onDrawCircleToolSizeIndicator = false
         }
@@ -82,19 +91,22 @@ class DrawView: View {
             MotionEvent.ACTION_DOWN -> {
 //                drawPath = Path()
                 saveBitmapForUndo()
+                touchIndicator.setTouchIndicatorPosition(x,y)
                 drawPath.moveTo(x,y)
             }
 
             MotionEvent.ACTION_MOVE -> {
                 drawPath.lineTo(x,y)
+                touchIndicator.setTouchIndicatorPosition(x,y)
                 myCanvas!!.drawPath(drawPath,myPaint) //draw path to bitmap from canvas
-                invalidate()
             }
             MotionEvent.ACTION_UP -> {
+                touchIndicator.setTouchIndicatorPosition(null,null)
                 drawPath = Path()
             }
         }
 
+        invalidate()
         return true
     }
 
@@ -113,7 +125,6 @@ class DrawView: View {
     fun changeUseTool(tool: DrawTool): Float {
         when(tool){
             DrawTool.BRUSH -> {
-                // TODO: tambahkan width/size nya juga
                 myPaint = mainTool.brush
                 currentTool = mainTool.brush
             }
@@ -156,8 +167,6 @@ class DrawView: View {
     }
 
     companion object{
-        private val defaultBrushColor = Color.BLACK
-        private val defaultToolSize = 5f
         private val circleOutline = Paint().apply {
             color = Color.BLACK
             strokeWidth = 3f
@@ -167,4 +176,11 @@ class DrawView: View {
     }
 
     data class MainTool(val brush: Brush, val eraser: Eraser)
+
+    data class TouchIndicator(var x: Float?, var y: Float?){
+        fun setTouchIndicatorPosition(nx: Float?,ny: Float?){
+            x = nx
+            y = ny
+        }
+    }
 }
