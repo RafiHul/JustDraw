@@ -44,19 +44,16 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             drawView.changeColor(it)
         }
 
-        //setupPopupMenuTool
+        //Setup Popup Menu Tool or Main Tool
         val popupView = LayoutInflater.from(context).inflate(R.layout.popup_menu_tool_layout,null)
         popUpMenuTool = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
         popUpMenuToolBinding = PopupMenuToolLayoutBinding.bind(popupView)
         setUpMainToolButton(popUpMenuToolBinding.buttonBrushTool, MainDrawTool.BRUSH)
         setUpMainToolButton(popUpMenuToolBinding.buttonEraserTool, MainDrawTool.ERASER)
 
+        //Setup Second Tool
         binding.imageButtonFillColor.setOnClickListener{
-            if(drawView.changeSecUseTool(SecDrawTool.FILLCOLOR)){
-                binding.imageButtonFillColor.setBackgroundColor(Color.WHITE)
-            } else {
-                binding.imageButtonFillColor.setBackgroundColor(Color.BLACK)
-            }
+            drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,binding.imageButtonFillColor,Color.BLACK)
         }
 
         binding.recyclerViewColorPalette.apply {
@@ -81,7 +78,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             }
         }
 
-        binding.sliderSize.value = drawView.currentTool.toolsSize
+        binding.sliderSize.value = drawView.getCurrentToolSize()
 
         binding.sliderSize.addOnSliderTouchListener(object : Slider.OnSliderTouchListener{
             override fun onStartTrackingTouch(slider: Slider) {
@@ -114,7 +111,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         button.setOnClickListener{
             changeMainUseToolImage(tool)
             drawView.changeMainUseTool(tool) //return picked tools size
-            binding.sliderSize.value = drawView.currentTool.toolsSize
+            binding.sliderSize.value = drawView.getCurrentToolSize() // TODO: bugs when tools change, show tools size indicator
             popUpMenuTool.dismiss()
         }
     }

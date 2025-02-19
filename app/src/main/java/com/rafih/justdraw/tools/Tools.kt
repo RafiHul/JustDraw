@@ -2,12 +2,12 @@ package com.rafih.justdraw.tools
 
 import android.graphics.BlurMaskFilter
 import android.graphics.Paint
-import com.rafih.justdraw.util.DrawToolProperty
+import com.rafih.justdraw.util.DefaultDrawToolProperty
 
 abstract class Tools: Paint(){
 
     init {
-        strokeWidth = DrawToolProperty.defaultBrushSize
+        strokeWidth = DefaultDrawToolProperty.brushSize
         style = Style.STROKE
         isAntiAlias = true
         isFilterBitmap = true

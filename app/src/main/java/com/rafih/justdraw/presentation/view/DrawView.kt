@@ -10,6 +10,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageButton
 import com.rafih.justdraw.tools.Brush
 import com.rafih.justdraw.tools.Eraser
 import com.rafih.justdraw.tools.FillColor
@@ -25,7 +26,7 @@ class DrawView: View {
     private val mainTool = MainToolInit()
     private val secTool = SecToolInit()
     private val touchIndicator = TouchIndicator(null,null)
-    var currentTool: Tools = mainTool.brush //default first tool used
+    private var currentTool: Tools = mainTool.brush //default first tool used
     private var previousTools: Tools? = null //to save previous tool used
 
     private lateinit var drawPath: Path
@@ -140,40 +141,41 @@ class DrawView: View {
         // TODO: bugs when tools change, show tools size indicator
     }
 
+    fun getCurrentToolSize(): Float {
+        return currentTool.toolsSize
+    }
+
     fun changeMainUseTool(tool: MainDrawTool){
         when(tool){
             MainDrawTool.BRUSH -> {
-                myPaint = mainTool.brush
-                currentTool = mainTool.brush
+                changeDrawProperty(mainTool.brush)
             }
             MainDrawTool.ERASER -> {
-                myPaint = mainTool.eraser
-                currentTool = mainTool.eraser
+                changeDrawProperty(mainTool.eraser)
             }
         }
 
         previousTools = null
     }
 
-    fun changeSecUseTool(tool: SecDrawTool): Boolean {
+    // TODO: Issue when click sec tool then main tool(view,logic)
+    fun changeSecUseTool(tool: SecDrawTool, imageButton: ImageButton, selectedBackground: Int){
 
         //view clicked before
         if (previousTools != null){
-            myPaint = previousTools!!
-            currentTool = previousTools!!
-            return true
+            changeDrawProperty(previousTools!!)
+            imageButton.setBackgroundColor(Color.WHITE) //set background button to default
+            return
         }
 
+        //view never clicked
         previousTools = currentTool
-
         when(tool){
             SecDrawTool.FILLCOLOR -> {
-                myPaint = secTool.fillColor
-                currentTool = secTool.fillColor
+                changeDrawProperty(secTool.fillColor)
+                imageButton.setBackgroundColor(selectedBackground)
             }
         }
-        //view never clicked
-        return false
     }
 
 
@@ -236,6 +238,11 @@ class DrawView: View {
             myCanvas = Canvas(myBitmap)
             invalidate()
         }
+    }
+
+    fun changeDrawProperty(nTool: Tools){
+        myPaint = nTool
+        currentTool = nTool
     }
 
     companion object{
