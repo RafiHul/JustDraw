@@ -1,5 +1,6 @@
 package com.rafih.justdraw.presentation.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,7 +14,8 @@ import com.rafih.justdraw.databinding.FragmentDrawBinding
 import com.rafih.justdraw.databinding.PopupMenuToolLayoutBinding
 import com.rafih.justdraw.presentation.adapter.ColorPaletteAdapter
 import com.rafih.justdraw.presentation.view.DrawView
-import com.rafih.justdraw.util.DrawTool
+import com.rafih.justdraw.util.MainDrawTool
+import com.rafih.justdraw.util.SecDrawTool
 
 class DrawFragment : Fragment(R.layout.fragment_draw) {
 
@@ -46,9 +48,16 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         val popupView = LayoutInflater.from(context).inflate(R.layout.popup_menu_tool_layout,null)
         popUpMenuTool = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
         popUpMenuToolBinding = PopupMenuToolLayoutBinding.bind(popupView)
-        setUpToolButton(popUpMenuToolBinding.buttonBrushTool, DrawTool.BRUSH)
-        setUpToolButton(popUpMenuToolBinding.buttonEraserTool, DrawTool.ERASER)
-        setUpToolButton(popUpMenuToolBinding.buttonFillColor, DrawTool.FILLCOLOR)
+        setUpMainToolButton(popUpMenuToolBinding.buttonBrushTool, MainDrawTool.BRUSH)
+        setUpMainToolButton(popUpMenuToolBinding.buttonEraserTool, MainDrawTool.ERASER)
+
+        binding.imageButtonFillColor.setOnClickListener{
+            if(drawView.changeSecUseTool(SecDrawTool.FILLCOLOR)){
+                binding.imageButtonFillColor.setBackgroundColor(Color.WHITE)
+            } else {
+                binding.imageButtonFillColor.setBackgroundColor(Color.BLACK)
+            }
+        }
 
         binding.recyclerViewColorPalette.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
@@ -89,24 +98,23 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
                 value: Float,
                 fromUser: Boolean
             ) {
-                drawView.changeToolSize(slider.value)
+                drawView.changeToolSize(slider.value)  // TODO: bugs when tools change, show tools size indicator 
             }
         })
     }
 
-    fun changeUseToolImage(tool: DrawTool){
+    fun changeMainUseToolImage(tool: MainDrawTool){
         when(tool){
-            DrawTool.BRUSH -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.baseline_brush_24)
-            DrawTool.ERASER -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.eraser_svgrepo_com)
-            DrawTool.FILLCOLOR -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.baseline_format_paint_24)
+            MainDrawTool.BRUSH -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.baseline_brush_24)
+            MainDrawTool.ERASER -> binding.imageViewOpenPopupTool.setImageResource(R.drawable.eraser_svgrepo_com)
         }
     }
 
-    fun setUpToolButton(button: View, tool: DrawTool){
+    fun setUpMainToolButton(button: View, tool: MainDrawTool){
         button.setOnClickListener{
-            changeUseToolImage(tool)
-            val toolsSize = drawView.changeUseTool(tool) //return picked tools size
-            binding.sliderSize.value = toolsSize
+            changeMainUseToolImage(tool)
+            drawView.changeMainUseTool(tool) //return picked tools size
+            binding.sliderSize.value = drawView.currentTool.toolsSize
             popUpMenuTool.dismiss()
         }
     }

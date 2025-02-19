@@ -12,7 +12,7 @@ abstract class Tools: Paint(){
         isAntiAlias = true
         isFilterBitmap = true
         strokeJoin = Join.ROUND
-        strokeCap = Paint.Cap.ROUND
+        strokeCap = Cap.ROUND
         isDither = true
         isSubpixelText = true
         maskFilter = BlurMaskFilter(3f, BlurMaskFilter.Blur.NORMAL)

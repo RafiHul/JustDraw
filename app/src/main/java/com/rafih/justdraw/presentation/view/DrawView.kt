@@ -14,16 +14,19 @@ import com.rafih.justdraw.tools.Brush
 import com.rafih.justdraw.tools.Eraser
 import com.rafih.justdraw.tools.FillColor
 import com.rafih.justdraw.tools.Tools
-import com.rafih.justdraw.util.DrawTool
+import com.rafih.justdraw.util.MainDrawTool
+import com.rafih.justdraw.util.SecDrawTool
 import java.util.LinkedList
 import java.util.Queue
 import java.util.Stack
 
 class DrawView: View {
 
-    private val mainTool = MainTool(Brush(), Eraser(), FillColor())
+    private val mainTool = MainToolInit()
+    private val secTool = SecToolInit()
     private val touchIndicator = TouchIndicator(null,null)
     var currentTool: Tools = mainTool.brush //default first tool used
+    private var previousTools: Tools? = null //to save previous tool used
 
     private lateinit var drawPath: Path
     private lateinit var myPaint: Paint
@@ -100,16 +103,19 @@ class DrawView: View {
                     floodFill(x,y)
                 } else {
                     drawPath.moveTo(x,y)
+                    drawPath.lineTo(x,y)
+                    myCanvas!!.drawPath(drawPath,myPaint)
                 }
 
             }
             MotionEvent.ACTION_MOVE -> {
+                touchIndicator.setTouchIndicatorPosition(x,y)
+
                 if (currentTool !is FillColor){
                     drawPath.lineTo(x,y)
                     myCanvas!!.drawPath(drawPath,myPaint) //draw path to bitmap from canvas
                 }
 
-                touchIndicator.setTouchIndicatorPosition(x,y)
             }
             MotionEvent.ACTION_UP -> {
                 touchIndicator.setTouchIndicatorPosition(null,null)
@@ -131,25 +137,43 @@ class DrawView: View {
         currentTool.toolsSize = value
         onDrawCircleToolSizeIndicator = true // untuk menggambar indicator lingkaran ukuran/size dari tool
         invalidate()
+        // TODO: bugs when tools change, show tools size indicator
     }
 
-    fun changeUseTool(tool: DrawTool): Float {
+    fun changeMainUseTool(tool: MainDrawTool){
         when(tool){
-            DrawTool.BRUSH -> {
+            MainDrawTool.BRUSH -> {
                 myPaint = mainTool.brush
                 currentTool = mainTool.brush
             }
-            DrawTool.ERASER -> {
+            MainDrawTool.ERASER -> {
                 myPaint = mainTool.eraser
                 currentTool = mainTool.eraser
             }
-            DrawTool.FILLCOLOR -> {
-                myPaint = mainTool.fillColor
-                currentTool = mainTool.fillColor
-            }
         }
 
-        return currentTool.toolsSize //return toolsize for slider
+        previousTools = null
+    }
+
+    fun changeSecUseTool(tool: SecDrawTool): Boolean {
+
+        //view clicked before
+        if (previousTools != null){
+            myPaint = previousTools!!
+            currentTool = previousTools!!
+            return true
+        }
+
+        previousTools = currentTool
+
+        when(tool){
+            SecDrawTool.FILLCOLOR -> {
+                myPaint = secTool.fillColor
+                currentTool = secTool.fillColor
+            }
+        }
+        //view never clicked
+        return false
     }
 
 
@@ -223,7 +247,8 @@ class DrawView: View {
         }
     }
 
-    data class MainTool(val brush: Brush, val eraser: Eraser, val fillColor: FillColor)
+    data class MainToolInit(val brush: Brush = Brush(), val eraser: Eraser = Eraser())
+    data class SecToolInit(val fillColor: FillColor = FillColor())
 
     data class TouchIndicator(var x: Float?, var y: Float?){
         fun setTouchIndicatorPosition(nx: Float?,ny: Float?){

@@ -1,7 +1,10 @@
 package com.rafih.justdraw.util
 
-enum class DrawTool {
+enum class MainDrawTool {
     ERASER,
-    BRUSH,
+    BRUSH
+}
+
+enum class SecDrawTool {
     FILLCOLOR
 }

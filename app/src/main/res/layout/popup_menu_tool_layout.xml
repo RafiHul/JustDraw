@@ -18,11 +18,4 @@
         android:layout_height="48dp"
         android:contentDescription="Eraser"
         android:src="@drawable/eraser_svgrepo_com" />
-
-    <ImageView
-        android:id="@+id/buttonFillColor"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:contentDescription="FillColor"
-        android:src="@drawable/baseline_format_paint_24" />
 </LinearLayout>

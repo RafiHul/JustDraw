@@ -67,6 +67,14 @@
                 android:layout_height="50dp"
                 android:src="@drawable/baseline_brush_24" />
 
+            <ImageButton
+                android:id="@+id/imageButtonFillColor"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="FillColor"
+                android:background="@color/white"
+                android:src="@drawable/baseline_format_paint_24" />
+
         </LinearLayout>
     </HorizontalScrollView>
 
