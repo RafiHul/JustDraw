@@ -26,8 +26,8 @@ class DrawView: View {
     private val mainTool = MainToolInit()
     private val secTool = SecToolInit()
     private val touchIndicator = TouchIndicator(null,null)
-    private var currentTool: Tools = mainTool.brush //default first tool used
-    private var previousTools: Tools? = null //to save previous tool used
+    private var currentMainTool: Tools = mainTool.brush //default first main tool used
+    private var currentSecTool: Tools? = null //default first sec tool used / null
 
     private lateinit var drawPath: Path
     private lateinit var myPaint: Paint
@@ -55,7 +55,7 @@ class DrawView: View {
     }
 
     private fun setUpComponent(){
-        myPaint = currentTool
+        myPaint = currentMainTool
         drawPath = Path()
         setBackgroundColor(Color.WHITE)
     }
@@ -73,12 +73,12 @@ class DrawView: View {
         val touchIndicatorX = touchIndicator.x
         val touchIndicatorY = touchIndicator.y
         if (touchIndicatorX != null && touchIndicatorY != null){
-            canvas.drawCircle(touchIndicatorX,touchIndicatorY,currentTool.toolsSize,circleOutline)
+            canvas.drawCircle(touchIndicatorX,touchIndicatorY,currentMainTool.toolsSize,circleOutline)
         }
 
         //indicator lingkaran ketika user memilih size tool
         if(onDrawCircleToolSizeIndicator){
-            canvas.drawCircle(centerX,centerY,currentTool.toolsSize, circleOutline)
+            canvas.drawCircle(centerX,centerY,currentMainTool.toolsSize, circleOutline)
             onDrawCircleToolSizeIndicator = false
         }
     }
@@ -100,7 +100,8 @@ class DrawView: View {
                 saveBitmapForUndo()
                 touchIndicator.setTouchIndicatorPosition(x,y)
 
-                if(currentTool is FillColor){
+                //add other validation
+                if(currentSecTool is FillColor){
                     floodFill(x,y)
                 } else {
                     drawPath.moveTo(x,y)
@@ -112,7 +113,7 @@ class DrawView: View {
             MotionEvent.ACTION_MOVE -> {
                 touchIndicator.setTouchIndicatorPosition(x,y)
 
-                if (currentTool !is FillColor){
+                if (currentSecTool !is FillColor){
                     drawPath.lineTo(x,y)
                     myCanvas!!.drawPath(drawPath,myPaint) //draw path to bitmap from canvas
                 }
@@ -129,20 +130,22 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
-        if(currentTool !is Eraser){ //if not eraser
-            currentTool.color = colorCode
+        if(currentMainTool !is Eraser){ //if not eraser
+            currentMainTool.color = colorCode
         }
+
+        currentSecTool?.color = colorCode // TODO: change this later
     }
 
     fun changeToolSize(value: Float){
-        currentTool.toolsSize = value
+        currentMainTool.toolsSize = value
         onDrawCircleToolSizeIndicator = true // untuk menggambar indicator lingkaran ukuran/size dari tool
         invalidate()
         // TODO: bugs when tools change, show tools size indicator
     }
 
     fun getCurrentToolSize(): Float {
-        return currentTool.toolsSize
+        return currentMainTool.toolsSize
     }
 
     fun changeMainUseTool(tool: MainDrawTool){
@@ -154,25 +157,23 @@ class DrawView: View {
                 changeDrawProperty(mainTool.eraser)
             }
         }
-
-        previousTools = null
     }
 
     // TODO: Issue when click sec tool then main tool(view,logic)
     fun changeSecUseTool(tool: SecDrawTool, imageButton: ImageButton, selectedBackground: Int){
 
         //view clicked before
-        if (previousTools != null){
-            changeDrawProperty(previousTools!!)
+        if (currentSecTool != null){
+            changeDrawProperty(currentMainTool)
             imageButton.setBackgroundColor(Color.WHITE) //set background button to default
             return
         }
 
         //view never clicked
-        previousTools = currentTool
         when(tool){
             SecDrawTool.FILLCOLOR -> {
-                changeDrawProperty(secTool.fillColor)
+                myPaint = secTool.fillColor
+                currentSecTool = secTool.fillColor
                 imageButton.setBackgroundColor(selectedBackground)
             }
         }
@@ -181,7 +182,7 @@ class DrawView: View {
 
     // TODO: Not optimized very slowwwwwwwwwwwww
     private fun floodFill(x: Float,y: Float){
-        val newColor = currentTool.color
+        val newColor = currentMainTool.color // TODO: change this to currentSecTool later
 
         if (x < 0 || x >= myBitmap.width || y < 0 || y >= myBitmap.height){
             return
@@ -242,7 +243,8 @@ class DrawView: View {
 
     fun changeDrawProperty(nTool: Tools){
         myPaint = nTool
-        currentTool = nTool
+        currentMainTool = nTool
+        currentSecTool = null
     }
 
     companion object{
