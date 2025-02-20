@@ -130,11 +130,16 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
-        if(currentMainTool !is Eraser){ //if not eraser
+
+        if(currentSecTool != null){
+            currentSecTool!!.color = colorCode
+            return
+        }
+
+        if(currentMainTool !is Eraser){ //eraser cannot change color
             currentMainTool.color = colorCode
         }
 
-        currentSecTool?.color = colorCode // TODO: change this later
     }
 
     fun changeToolSize(value: Float){
@@ -159,13 +164,13 @@ class DrawView: View {
         }
     }
 
-    // TODO: Issue when click sec tool then main tool(view,logic)
-    fun changeSecUseTool(tool: SecDrawTool, imageButton: ImageButton, selectedBackground: Int){
+    fun changeSecUseTool(tool: SecDrawTool, imageButton: ImageButton, selectedBackgroundColor: Int){
 
         //view clicked before
         if (currentSecTool != null){
             changeDrawProperty(currentMainTool)
             imageButton.setBackgroundColor(Color.WHITE) //set background button to default
+            currentSecTool = null
             return
         }
 
@@ -174,7 +179,7 @@ class DrawView: View {
             SecDrawTool.FILLCOLOR -> {
                 myPaint = secTool.fillColor
                 currentSecTool = secTool.fillColor
-                imageButton.setBackgroundColor(selectedBackground)
+                imageButton.setBackgroundColor(selectedBackgroundColor)
             }
         }
     }
@@ -182,7 +187,7 @@ class DrawView: View {
 
     // TODO: Not optimized very slowwwwwwwwwwwww
     private fun floodFill(x: Float,y: Float){
-        val newColor = currentMainTool.color // TODO: change this to currentSecTool later
+        val newColor = currentSecTool?.color ?: Color.BLACK
 
         if (x < 0 || x >= myBitmap.width || y < 0 || y >= myBitmap.height){
             return
@@ -244,7 +249,6 @@ class DrawView: View {
     fun changeDrawProperty(nTool: Tools){
         myPaint = nTool
         currentMainTool = nTool
-        currentSecTool = null
     }
 
     companion object{
