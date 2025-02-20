@@ -17,6 +17,8 @@ import com.rafih.justdraw.tools.FillColor
 import com.rafih.justdraw.tools.Tools
 import com.rafih.justdraw.util.MainDrawTool
 import com.rafih.justdraw.util.SecDrawTool
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.LinkedList
 import java.util.Queue
 import java.util.Stack
@@ -102,7 +104,7 @@ class DrawView: View {
 
                 //add other validation
                 if(currentSecTool is FillColor){
-                    floodFill(x,y)
+                    floodFill(x.toInt(),y.toInt())
                 } else {
                     drawPath.moveTo(x,y)
                     drawPath.lineTo(x,y)
@@ -185,36 +187,38 @@ class DrawView: View {
     }
 
 
-    // TODO: Not optimized very slowwwwwwwwwwwww
-    private fun floodFill(x: Float,y: Float){
+    // TODO: add coroutines
+    private fun floodFill(x: Int, y: Int) {
+
         val newColor = currentSecTool?.color ?: Color.BLACK
 
-        if (x < 0 || x >= myBitmap.width || y < 0 || y >= myBitmap.height){
-            return
-        }
+        val targetColor = myBitmap.getPixel(x, y)
+        if (targetColor == newColor) return
 
-        val targetColor = myBitmap.getPixel(x.toInt(),y.toInt())
-        if (targetColor == newColor){
-            return
-        }
+        val pixels = IntArray(myBitmap.width * myBitmap.height)
+        myBitmap.getPixels(pixels, 0, myBitmap.width, 0, 0, myBitmap.width, myBitmap.height)
 
-        val queue: Queue<Pair<Float, Float>> = LinkedList()
-        queue.add(Pair(x,y))
+        val queue = ArrayDeque<Pair<Int, Int>>()
+        queue.add(Pair(x, y))
 
-        while (queue.isNotEmpty()){
-            val (px,py) = queue.poll()
+        while (queue.isNotEmpty()) {
+            val (px, py) = queue.removeFirst()
+            val index = py * myBitmap.width + px
 
-            if (px < 0 || px >= myBitmap.width || py < 0 || py >= myBitmap.height || myBitmap.getPixel(px.toInt(),py.toInt()) != targetColor){
+            if (px < 0 || px >= myBitmap.width || py < 0 || py >= myBitmap.height ||
+                pixels[index] != targetColor) {
                 continue
             }
 
-            myBitmap.setPixel(px.toInt(),py.toInt(),newColor)
+            pixels[index] = newColor
 
-            queue.add(Pair(px+1,py))
-            queue.add(Pair(px-1,py))
-            queue.add(Pair(px,py+1))
-            queue.add(Pair(px,py-1))
+            queue.add(Pair(px + 1, py))
+            queue.add(Pair(px - 1, py))
+            queue.add(Pair(px, py + 1))
+            queue.add(Pair(px, py - 1))
         }
+
+        myBitmap.setPixels(pixels, 0, myBitmap.width, 0, 0, myBitmap.width, myBitmap.height)
     }
 
     private fun saveBitmapForUndo(){
