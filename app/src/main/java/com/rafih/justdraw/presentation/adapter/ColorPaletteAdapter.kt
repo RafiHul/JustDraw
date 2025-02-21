@@ -7,15 +7,40 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rafih.justdraw.databinding.RecyclerviewColorPaletteBinding
 
 class ColorPaletteAdapter(val colorPalette: Array<String>, val changeColorAction: (Int) -> Unit): RecyclerView.Adapter<ColorPaletteAdapter.MyViewHolder>() {
+    
+    private var positionSelected: Int? = null
+    private var oldPositionSelected: Int? = null
+
+    // TODO: bikin kalo misalnya menambahkan warna baru, maka warna tersebut langsung terpakai
     inner class MyViewHolder(val binding: RecyclerviewColorPaletteBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(currentColor: String){
+        fun bind(currentColor: String, position: Int){
 
             val colorCode = Color.parseColor(currentColor)
+            setSelectedColor(0)
+
+            if (colorCode == Color.BLACK && positionSelected == null){ //first selected color / default selected color when open app (black)
+                positionSelected = position
+                setSelectedColor(2)
+            }
+
             binding.root.apply {
                 setCardBackgroundColor(colorCode)
-                setOnClickListener{ changeColorAction(colorCode) }
+                setOnClickListener{
+                    oldPositionSelected = positionSelected
+                    positionSelected = position
+                    setSelectedColor(2)
+                    changeColorAction(colorCode)
 
+                    //this to handle 2 times click
+                    if(oldPositionSelected != positionSelected) {
+                        notifyItemChanged(oldPositionSelected!!)
+                    }
+                }
             }
+        }
+
+        fun setSelectedColor(value: Int){
+            binding.root.strokeWidth = value
         }
     }
 
@@ -36,6 +61,6 @@ class ColorPaletteAdapter(val colorPalette: Array<String>, val changeColorAction
         holder: MyViewHolder,
         position: Int
     ) {
-        holder.bind(colorPalette[position])
+        holder.bind(colorPalette[position], position)
     }
 }
