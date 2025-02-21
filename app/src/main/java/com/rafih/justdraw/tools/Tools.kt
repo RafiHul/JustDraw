@@ -8,6 +8,7 @@ abstract class Tools: Paint(){
 
     init {
         strokeWidth = DefaultDrawToolProperty.brushSize
+        color = DefaultDrawToolProperty.brushColor
         style = Style.STROKE
         isAntiAlias = true
         isFilterBitmap = true

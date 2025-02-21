@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.rafih.justdraw.databinding.RecyclerviewColorPaletteBinding
+import com.rafih.justdraw.util.DefaultDrawToolProperty
 
 class ColorPaletteAdapter(val colorPalette: Array<String>, val changeColorAction: (Int) -> Unit): RecyclerView.Adapter<ColorPaletteAdapter.MyViewHolder>() {
     
@@ -20,7 +21,7 @@ class ColorPaletteAdapter(val colorPalette: Array<String>, val changeColorAction
 
             if (colorCode == Color.BLACK && positionSelected == null){ //first selected color / default selected color when open app (black)
                 positionSelected = position
-                setSelectedColor(2)
+                setSelectedColor(DefaultDrawToolProperty.colorPaletteIndicatorSize)
             }
 
             binding.root.apply {
@@ -28,7 +29,7 @@ class ColorPaletteAdapter(val colorPalette: Array<String>, val changeColorAction
                 setOnClickListener{
                     oldPositionSelected = positionSelected
                     positionSelected = position
-                    setSelectedColor(2)
+                    setSelectedColor(DefaultDrawToolProperty.colorPaletteIndicatorSize)
                     changeColorAction(colorCode)
 
                     //this to handle 2 times click

@@ -17,10 +17,6 @@ import com.rafih.justdraw.tools.FillColor
 import com.rafih.justdraw.tools.Tools
 import com.rafih.justdraw.util.MainDrawTool
 import com.rafih.justdraw.util.SecDrawTool
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.LinkedList
-import java.util.Queue
 import java.util.Stack
 
 class DrawView: View {
@@ -133,14 +129,13 @@ class DrawView: View {
 
     fun changeColor(colorCode: Int){
 
-        if(currentSecTool != null){
-            currentSecTool!!.color = colorCode
+        if(currentMainTool is Eraser){ //eraser cannot change color
+            mainTool.brush.color = colorCode
             return
         }
 
-        if(currentMainTool !is Eraser){ //eraser cannot change color
-            currentMainTool.color = colorCode
-        }
+        currentSecTool?.color = colorCode
+        currentMainTool.color = colorCode
 
     }
 
@@ -181,6 +176,7 @@ class DrawView: View {
             SecDrawTool.FILLCOLOR -> {
                 myPaint = secTool.fillColor
                 currentSecTool = secTool.fillColor
+                currentSecTool?.color = currentMainTool.color
                 imageButton.setBackgroundColor(selectedBackgroundColor)
             }
         }
