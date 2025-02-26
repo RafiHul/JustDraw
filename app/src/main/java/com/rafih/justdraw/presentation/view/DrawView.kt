@@ -4,13 +4,17 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Paint.Style
 import android.graphics.Path
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.ImageButton
+import com.google.android.material.slider.Slider
 import com.rafih.justdraw.tools.Brush
 import com.rafih.justdraw.tools.Eraser
 import com.rafih.justdraw.tools.FillColor
@@ -18,6 +22,8 @@ import com.rafih.justdraw.tools.Tools
 import com.rafih.justdraw.util.MainDrawTool
 import com.rafih.justdraw.util.SecDrawTool
 import java.util.Stack
+import kotlin.math.max
+import kotlin.math.min
 
 class DrawView: View {
 
@@ -70,11 +76,12 @@ class DrawView: View {
         //indicator lingkaran ketika user menggambar di layar
         val touchIndicatorX = touchIndicator.x
         val touchIndicatorY = touchIndicator.y
-        if (touchIndicatorX != null && touchIndicatorY != null){
+        if (touchIndicatorX != null && touchIndicatorY != null && currentSecTool == null){
             canvas.drawCircle(touchIndicatorX,touchIndicatorY,currentMainTool.toolsSize,circleOutline)
         }
 
         //indicator lingkaran ketika user memilih size tool
+        // TODO: edit this later
         if(onDrawCircleToolSizeIndicator){
             canvas.drawCircle(centerX,centerY,currentMainTool.toolsSize, circleOutline)
             onDrawCircleToolSizeIndicator = false
@@ -128,13 +135,13 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
+        currentSecTool?.color = colorCode
 
         if(currentMainTool is Eraser){ //eraser cannot change color
             mainTool.brush.color = colorCode
             return
         }
 
-        currentSecTool?.color = colorCode
         currentMainTool.color = colorCode
 
     }
@@ -161,13 +168,14 @@ class DrawView: View {
         }
     }
 
-    fun changeSecUseTool(tool: SecDrawTool, imageButton: ImageButton, selectedBackgroundColor: Int){
+    fun changeSecUseTool(tool: SecDrawTool, imageButton: ImageButton, sliderSize: Slider ,selectedBackgroundColor: Int){
 
         //view clicked before
         if (currentSecTool != null){
             changeDrawProperty(currentMainTool)
             imageButton.setBackgroundColor(Color.WHITE) //set background button to default
             currentSecTool = null
+            sliderSize.visibility = VISIBLE
             return
         }
 
@@ -176,8 +184,9 @@ class DrawView: View {
             SecDrawTool.FILLCOLOR -> {
                 myPaint = secTool.fillColor
                 currentSecTool = secTool.fillColor
-                currentSecTool?.color = currentMainTool.color
+                currentSecTool?.color = currentMainTool.color //transfer main tool color to sec tool
                 imageButton.setBackgroundColor(selectedBackgroundColor)
+                sliderSize.visibility = GONE
             }
         }
     }
