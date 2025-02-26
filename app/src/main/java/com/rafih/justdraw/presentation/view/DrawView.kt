@@ -33,10 +33,16 @@ class DrawView: View {
     private var currentMainTool: Tools = mainTool.brush //default first main tool used
     private var currentSecTool: Tools? = null //default first sec tool used / null
 
+    private lateinit var scaleGesture: ScaleGestureDetector
     private lateinit var drawPath: Path
     private lateinit var myPaint: Paint
     private lateinit var myBitmap: Bitmap
     private var myCanvas: Canvas? = null
+    private val bitmapMatrix = Matrix()
+
+    private var scaleFactor = 1f
+    private var maxZoomIn = 10.0f
+    private var maxZoomOut = 0.1f
 
     private val undoStack = Stack<Bitmap>()
     private val redoStack = Stack<Bitmap>()
@@ -62,6 +68,34 @@ class DrawView: View {
         myPaint = currentMainTool
         drawPath = Path()
         setBackgroundColor(Color.WHITE)
+        scaleGesture = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener(){
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                scaleFactor *= detector.scaleFactor
+                scaleFactor = max(maxZoomOut, min(scaleFactor, maxZoomIn))  //between 0.1f and 10.0f
+                applyZoom()
+                return true
+            }
+        })
+    }
+
+//    fun zoomIn() {
+//        if (scaleFactor < maxScale) {
+//            scaleFactor *= 1.2f
+//            applyZoom()
+//        }
+//    }
+//
+//    fun zoomOut() {
+//        if (scaleFactor > minScale) {
+//            scaleFactor /= 1.2f
+//            applyZoom()
+//        }
+//    }
+
+    private fun applyZoom() {
+        bitmapMatrix.reset()
+        bitmapMatrix.postScale(scaleFactor, scaleFactor, width / 2f, height / 2f)
+        invalidate()
     }
 
     //kalo mau menggambar sesuatu lakukan di ondraw, jangan di luarnya
@@ -71,7 +105,7 @@ class DrawView: View {
         val centerY = (height / 2f) + (width / 4f)
 
         //main draw
-        canvas.drawBitmap(myBitmap, 0f, 0f, myPaint)
+        canvas.drawBitmap(myBitmap, bitmapMatrix, myPaint)
 
         //indicator lingkaran ketika user menggambar di layar
         val touchIndicatorX = touchIndicator.x
@@ -94,9 +128,9 @@ class DrawView: View {
         myCanvas = Canvas(myBitmap)
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        super.onTouchEvent(event)
-        val x = event!!.x
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        scaleGesture.onTouchEvent(event)
+        val x = event.x
         val y = event.y
 
         when(event.action){
@@ -271,7 +305,6 @@ class DrawView: View {
 
     data class MainToolInit(val brush: Brush = Brush(), val eraser: Eraser = Eraser())
     data class SecToolInit(val fillColor: FillColor = FillColor())
-
     data class TouchIndicator(var x: Float?, var y: Float?){
         fun setTouchIndicatorPosition(nx: Float?,ny: Float?){
             x = nx

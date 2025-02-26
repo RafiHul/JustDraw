@@ -53,7 +53,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
 
         //Setup Second Tool
         binding.imageButtonFillColor.setOnClickListener{
-            drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,binding.imageButtonFillColor,Color.BLACK)
+            drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,binding.imageButtonFillColor, binding.sliderSize ,Color.BLACK)
         }
 
         binding.recyclerViewColorPalette.apply {
