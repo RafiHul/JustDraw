@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$USER_HOME$/Android/Sdk/icons/material/materialicons/format_paint/baseline_format_paint_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/Android/Sdk/icons/material/materialicons/shape_line/baseline_shape_line_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,7 +28,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="baseline_format_paint_24" />
+                            <entry key="outputName" value="baseline_shape_line_24" />
                             <entry key="sourceFile" value="$USER_HOME$/Downloads/SVG/eraser-svgrepo-com.svg" />
                           </map>
                         </option>

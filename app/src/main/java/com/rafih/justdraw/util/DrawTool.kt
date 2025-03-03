@@ -6,5 +6,6 @@ enum class MainDrawTool {
 }
 
 enum class SecDrawTool {
-    FILLCOLOR
+    FILLCOLOR,
+    SHAPE
 }

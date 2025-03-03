@@ -17,6 +17,7 @@ import com.google.android.material.slider.Slider
 import com.rafih.justdraw.tools.Brush
 import com.rafih.justdraw.tools.Eraser
 import com.rafih.justdraw.tools.FillColor
+import com.rafih.justdraw.tools.ShapeTool
 import com.rafih.justdraw.tools.Tools
 import com.rafih.justdraw.util.MainDrawTool
 import com.rafih.justdraw.util.SecDrawTool
@@ -106,11 +107,15 @@ class DrawView: View {
         //main draw
         canvas.drawBitmap(myBitmap, bitmapMatrix, myPaint)
 
-        //indicator lingkaran ketika user menggambar di layar
-        val touchIndicatorX = touchIndicator.x
-        val touchIndicatorY = touchIndicator.y
-        if (touchIndicatorX != null && touchIndicatorY != null && currentSecTool == null){
-            canvas.drawCircle(touchIndicatorX,touchIndicatorY,currentMainTool.toolsSize,circleOutline)
+        if (currentSecTool is ShapeTool) {
+            val shapeTool = currentSecTool as ShapeTool
+            if (shapeTool.isCurrentlyDrawing()) {
+
+                shapeTool.drawShapePreview(canvas)
+
+                val dimensions = shapeTool.getCurrentDimensions()
+                canvas.drawText(dimensions, 20f, 60f, textPaint)
+            }
         }
 
         //indicator lingkaran ketika user memilih size tool
@@ -118,6 +123,18 @@ class DrawView: View {
         if(onDrawCircleToolSizeIndicator){
             canvas.drawCircle(centerX,centerY,currentMainTool.toolsSize, circleOutline)
             onDrawCircleToolSizeIndicator = false
+        }
+
+        //indicator lingkaran ketika user menggambar di layar
+        val touchIndicatorX = touchIndicator.x
+        val touchIndicatorY = touchIndicator.y
+        if (touchIndicatorX != null && touchIndicatorY != null && currentSecTool == null) {
+            canvas.drawCircle(
+                touchIndicatorX,
+                touchIndicatorY,
+                currentMainTool.toolsSize,
+                circleOutline
+            )
         }
     }
 
@@ -132,6 +149,19 @@ class DrawView: View {
         val x = event.x
         val y = event.y
 
+        if (currentSecTool is ShapeTool) { //untuk membuat shape
+            val shapeTool = currentSecTool as ShapeTool
+            val result = shapeTool.onTouchEvent(event) //change toucheventlistener
+            if (event.action == MotionEvent.ACTION_UP) {
+                saveBitmapForUndo()
+
+                shapeTool.drawShapeOnCanvas(myCanvas)
+            }
+
+            invalidate()
+            return result
+        }
+
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
 //                drawPath = Path()
@@ -140,13 +170,15 @@ class DrawView: View {
 
                 //add other validation
                 if(currentSecTool is FillColor){
-                    floodFill(x.toInt(),y.toInt())
-                } else {
-                    drawPath.moveTo(x,y)
-                    drawPath.lineTo(x,y)
-                    myCanvas!!.drawPath(drawPath,myPaint)
+                    val fillTool = currentSecTool as FillColor
+                    fillTool.floodFill(x.toInt(), y.toInt(), myBitmap)
+                    invalidate()
+                    return true
                 }
 
+                drawPath.moveTo(x,y)
+                drawPath.lineTo(x,y)
+                myCanvas!!.drawPath(drawPath,myPaint)
             }
             MotionEvent.ACTION_MOVE -> {
                 touchIndicator.setTouchIndicatorPosition(x,y)
@@ -219,45 +251,12 @@ class DrawView: View {
                 imageButton.setBackgroundColor(selectedBackgroundColor)
                 sliderSize.visibility = GONE
             }
-            SecDrawTool.Shape -> {
-
+            SecDrawTool.SHAPE -> {
+                changeSecToolDrawProperty(secTool.shape)
+                imageButton.setBackgroundColor(selectedBackgroundColor)
+                sliderSize.visibility = GONE
             }
         }
-    }
-
-
-    // TODO: add coroutines
-    private fun floodFill(x: Int, y: Int) {
-
-        val newColor = myPaint.color
-
-        val targetColor = myBitmap.getPixel(x, y)
-        if (targetColor == newColor) return
-
-        val pixels = IntArray(myBitmap.width * myBitmap.height)
-        myBitmap.getPixels(pixels, 0, myBitmap.width, 0, 0, myBitmap.width, myBitmap.height)
-
-        val queue = ArrayDeque<Pair<Int, Int>>()
-        queue.add(Pair(x, y))
-
-        while (queue.isNotEmpty()) {
-            val (px, py) = queue.removeFirst()
-            val index = py * myBitmap.width + px
-
-            if (px < 0 || px >= myBitmap.width || py < 0 || py >= myBitmap.height ||
-                pixels[index] != targetColor) {
-                continue
-            }
-
-            pixels[index] = newColor
-
-            queue.add(Pair(px + 1, py))
-            queue.add(Pair(px - 1, py))
-            queue.add(Pair(px, py + 1))
-            queue.add(Pair(px, py - 1))
-        }
-
-        myBitmap.setPixels(pixels, 0, myBitmap.width, 0, 0, myBitmap.width, myBitmap.height)
     }
 
     private fun saveBitmapForUndo(){
@@ -307,10 +306,15 @@ class DrawView: View {
             style = Style.STROKE
             isAntiAlias = true
         }
+        private val textPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 30f
+            style = Style.FILL
+        }
     }
 
     data class MainToolInit(val brush: Brush = Brush(), val eraser: Eraser = Eraser())
-    data class SecToolInit(val fillColor: FillColor = FillColor())
+    data class SecToolInit(val fillColor: FillColor = FillColor(), val shape: ShapeTool = ShapeTool())
     data class TouchIndicator(var x: Float?, var y: Float?){
         fun setTouchIndicatorPosition(nx: Float?,ny: Float?){
             x = nx

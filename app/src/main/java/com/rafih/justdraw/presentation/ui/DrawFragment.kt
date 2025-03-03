@@ -56,6 +56,10 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,binding.imageButtonFillColor, binding.sliderSize ,Color.BLACK)
         }
 
+        binding.imageButtonShape.setOnClickListener{
+            drawView.changeSecUseTool(SecDrawTool.SHAPE, binding.imageButtonShape, binding.sliderSize ,Color.BLACK)
+        }
+
         binding.recyclerViewColorPalette.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
             adapter = colorPaletteAdapter

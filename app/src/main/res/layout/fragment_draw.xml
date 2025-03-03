@@ -75,6 +75,14 @@
                 android:background="@color/white"
                 android:src="@drawable/baseline_format_paint_24" />
 
+            <ImageButton
+                android:id="@+id/imageButtonShape"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Shape"
+                android:background="@color/white"
+                android:src="@drawable/baseline_shape_line_24" />
+
         </LinearLayout>
     </HorizontalScrollView>
 
