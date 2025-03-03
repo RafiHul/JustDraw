@@ -9,7 +9,6 @@ import android.graphics.Paint
 import android.graphics.Paint.Style
 import android.graphics.Path
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -29,7 +28,7 @@ class DrawView: View {
 
     private val mainTool = MainToolInit()
     private val secTool = SecToolInit()
-    private val touchIndicator = TouchIndicator(null,null)
+    private val touchIndicator = TouchIndicator(x = null, y = null)
     private var currentMainTool: Tools = mainTool.brush //default first main tool used
     private var currentSecTool: Tools? = null //default first sec tool used / null
 
@@ -194,10 +193,10 @@ class DrawView: View {
     fun changeMainUseTool(tool: MainDrawTool){
         when(tool){
             MainDrawTool.BRUSH -> {
-                changeDrawProperty(mainTool.brush)
+                changeMainToolDrawProperty(mainTool.brush)
             }
             MainDrawTool.ERASER -> {
-                changeDrawProperty(mainTool.eraser)
+                changeMainToolDrawProperty(mainTool.eraser)
             }
         }
     }
@@ -206,7 +205,7 @@ class DrawView: View {
 
         //view clicked before
         if (currentSecTool != null){
-            changeDrawProperty(currentMainTool)
+            changeMainToolDrawProperty(currentMainTool)
             imageButton.setBackgroundColor(Color.WHITE) //set background button to default
             currentSecTool = null
             sliderSize.visibility = VISIBLE
@@ -216,11 +215,12 @@ class DrawView: View {
         //view never clicked
         when(tool){
             SecDrawTool.FILLCOLOR -> {
-                myPaint = secTool.fillColor
-                currentSecTool = secTool.fillColor
-                currentSecTool?.color = currentMainTool.color //transfer main tool color to sec tool
+                changeSecToolDrawProperty(secTool.fillColor)
                 imageButton.setBackgroundColor(selectedBackgroundColor)
                 sliderSize.visibility = GONE
+            }
+            SecDrawTool.Shape -> {
+
             }
         }
     }
@@ -229,7 +229,7 @@ class DrawView: View {
     // TODO: add coroutines
     private fun floodFill(x: Int, y: Int) {
 
-        val newColor = currentSecTool?.color ?: Color.BLACK
+        val newColor = myPaint.color
 
         val targetColor = myBitmap.getPixel(x, y)
         if (targetColor == newColor) return
@@ -289,9 +289,15 @@ class DrawView: View {
         }
     }
 
-    fun changeDrawProperty(nTool: Tools){
+    private fun changeMainToolDrawProperty(nTool: Tools){
         myPaint = nTool
         currentMainTool = nTool
+    }
+
+    private fun changeSecToolDrawProperty(nTool: Tools){
+        myPaint = nTool
+        currentSecTool = nTool //set current sectool to fillcolor
+        currentSecTool!!.color = currentMainTool.color //transfer main tool color to sec tool
     }
 
     companion object{
