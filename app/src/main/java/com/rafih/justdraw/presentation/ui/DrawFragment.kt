@@ -7,17 +7,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.slider.Slider
 import com.rafih.justdraw.R
 import com.rafih.justdraw.databinding.FragmentDrawBinding
 import com.rafih.justdraw.presentation.adapter.ColorPaletteAdapter
-import com.rafih.justdraw.presentation.adapter.PopupToolsAdapter
+import com.rafih.justdraw.presentation.adapter.TopToolsAdapter
 import com.rafih.justdraw.presentation.view.DrawView
 import com.rafih.justdraw.util.MainDrawTool
 import com.rafih.justdraw.util.SecDrawTool
+import com.rafih.justdraw.util.ShapeToolType
 
 class DrawFragment : Fragment(R.layout.fragment_draw) {
 
@@ -25,11 +26,11 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
     private val binding get() = _binding!!
 
     private lateinit var drawView: DrawView
-    private lateinit var popupToolsAdapter: PopupToolsAdapter
-    private lateinit var recyclerViewPopupTools: RecyclerView
+    private lateinit var topToolsAdapter: TopToolsAdapter
 
     //map tools
     private lateinit var mainToolItem: List<Pair<Drawable?, MainDrawTool>>
+    private lateinit var shapeToolItem: List<Pair<Drawable?, ShapeToolType>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,21 +45,24 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
 
         drawView = binding.drawView
         setUpToolItemListMap()
-        setUpRecyclerViewPopupTools()
+        setUpRecyclerViewTopTools()
         setUpColorPallete()
 
         binding.imageButtonFillColor.setOnClickListener{
             drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,binding.imageButtonFillColor, binding.sliderSize ,Color.BLACK)
         }
 
-//        binding.imageButtonShape.setOnClickListener{
-//            drawView.changeSecUseTool(SecDrawTool.SHAPE, binding.imageButtonShape, binding.sliderSize ,Color.BLACK)
-//        }
+        binding.imageViewMainTool.setOnClickListener{
+            topToolsAdapter.changeToolItemList(mainToolItem)
+            topToolsAdapter.actionClick = { toolDrawable, tool ->
+                setUpMainToolButton(it as ImageView, toolDrawable, tool as MainDrawTool)
+            }
+        }
 
-        binding.imageViewOpenPopupMainTool.setOnClickListener{
-            popupToolsAdapter.toolItem = mainToolItem
-            popupToolsAdapter.actionClick = {
-                setUpMainToolButton(it)
+        binding.imageButtonShapeTool.setOnClickListener{
+            topToolsAdapter.changeToolItemList(shapeToolItem)
+            topToolsAdapter.actionClick = { toolDrawable, tool ->
+                setUpShapeToolButton(it as ImageView,toolDrawable, tool as ShapeToolType)
             }
         }
 
@@ -111,29 +115,38 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             getDrawableFromContext(R.drawable.baseline_brush_24) to MainDrawTool.BRUSH,
             getDrawableFromContext(R.drawable.eraser_svgrepo_com) to MainDrawTool.ERASER
         ).toList()
+
+        shapeToolItem = mapOf(
+            getDrawableFromContext(R.drawable.outline_rectangle_24) to ShapeToolType.RECTANGLE,
+            getDrawableFromContext(R.drawable.outline_circle_24) to ShapeToolType.CIRCLE
+        ).toList()
     }
 
-    private fun setUpRecyclerViewPopupTools() {
-        recyclerViewPopupTools = binding.recyclerViewPopupTools
-        popupToolsAdapter = PopupToolsAdapter(mainToolItem){ setUpMainToolButton(it) }
+    private fun setUpRecyclerViewTopTools() {
+        topToolsAdapter = TopToolsAdapter(mainToolItem) { toolDrawable, tool ->
+            setUpMainToolButton(binding.imageViewMainTool, toolDrawable, tool as MainDrawTool)
+        }
 
-        binding.recyclerViewPopupTools.apply {
+        binding.recyclerViewTopTools.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-            adapter = popupToolsAdapter
+            adapter = topToolsAdapter
         }
     }
 
-    fun changeMainUseToolImage(tool: MainDrawTool){
-        when(tool){
-            MainDrawTool.BRUSH -> binding.imageViewOpenPopupMainTool.setImageResource(R.drawable.baseline_brush_24)
-            MainDrawTool.ERASER -> binding.imageViewOpenPopupMainTool.setImageResource(R.drawable.eraser_svgrepo_com)
-        }
+    fun changeToolImage(imageView: ImageView, toolDrawable: Drawable){
+        imageView.setImageDrawable(toolDrawable)
     }
 
-    fun setUpMainToolButton(tool: MainDrawTool){
-        changeMainUseToolImage(tool)
+    fun setUpMainToolButton(imageView: ImageView, toolDrawable: Drawable, tool: MainDrawTool){
+        changeToolImage(imageView, toolDrawable)
         drawView.changeMainUseTool(tool) //return picked tools size
         binding.sliderSize.value = drawView.getCurrentToolSize() // TODO: bugs when tools change, show tools size indicator
+    }
+
+    fun setUpShapeToolButton(imageView: ImageView, toolDrawable: Drawable,tool: ShapeToolType){
+        changeToolImage(imageView, toolDrawable)
+//        drawView.changeMainUseTool(tool) //return picked tools size
+//        binding.sliderSize.value = drawView.getCurrentToolSize() //
     }
 
     private fun getDrawableFromContext(resid: Int): Drawable? {

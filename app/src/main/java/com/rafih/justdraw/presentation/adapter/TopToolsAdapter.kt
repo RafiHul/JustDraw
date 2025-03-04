@@ -5,23 +5,24 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.rafih.justdraw.databinding.PopupMenuToolLayoutBinding
-import com.rafih.justdraw.util.MainDrawTool
+import com.rafih.justdraw.util.TopTool
 
-class PopupToolsAdapter(var toolItem: List<Pair<Drawable?, MainDrawTool>>, var actionClick: (MainDrawTool) -> Unit = {}): RecyclerView.Adapter<PopupToolsAdapter.MyViewHolder>() {
+class TopToolsAdapter(var toolItem: List<Pair<Drawable?, TopTool>>, var actionClick: (Drawable,TopTool) -> Unit): RecyclerView.Adapter<TopToolsAdapter.MyViewHolder>() {
     inner class MyViewHolder(val binding: PopupMenuToolLayoutBinding): RecyclerView.ViewHolder(binding.root){
 
-        fun bind(currentItem: Pair<Drawable?, MainDrawTool>){
+        fun bind(currentItem: Pair<Drawable?, TopTool>){
             val drawable = currentItem.first
             val tool = currentItem.second
 
             binding.buttonTool.apply {
                 setImageDrawable(drawable)
                 setOnClickListener{
-                    actionClick(tool)
+                    actionClick(drawable!!, tool)
                 }
             }
         }
     }
+
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -42,5 +43,10 @@ class PopupToolsAdapter(var toolItem: List<Pair<Drawable?, MainDrawTool>>, var a
     ) {
         val currItem = toolItem[position]
         holder.bind(currItem)
+    }
+
+    fun changeToolItemList(nitem: List<Pair<Drawable?, TopTool>>){
+        toolItem = nitem
+        notifyDataSetChanged()
     }
 }
