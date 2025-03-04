@@ -1,11 +1,20 @@
 package com.rafih.justdraw.util
 
-enum class MainDrawTool {
+sealed interface DrawTool
+
+enum class MainDrawTool: DrawTool {
     ERASER,
     BRUSH
 }
 
-enum class SecDrawTool {
+enum class SecDrawTool: DrawTool {
     FILLCOLOR,
     SHAPE
+}
+
+enum class ShapeToolType{
+    RECTANGLE,
+    CIRCLE,
+    TRIANGLE,
+    LINE
 }
