@@ -62,7 +62,7 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/imageViewOpenPopupTool"
+                android:id="@+id/imageViewOpenPopupMainTool"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/baseline_brush_24" />
@@ -71,16 +71,16 @@
                 android:id="@+id/imageButtonFillColor"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:contentDescription="FillColor"
                 android:background="@color/white"
+                android:contentDescription="FillColor"
                 android:src="@drawable/baseline_format_paint_24" />
 
             <ImageButton
-                android:id="@+id/imageButtonShape"
+                android:id="@+id/imageButtonOpenPopupShapeTool"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:contentDescription="Shape"
                 android:background="@color/white"
+                android:contentDescription="Shape"
                 android:src="@drawable/baseline_shape_line_24" />
 
         </LinearLayout>
@@ -88,9 +88,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewColorPalette"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="80dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/recyclerViewPopupTools"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -102,6 +102,13 @@
         android:valueFrom="0.0"
         android:valueTo="100.0"
         app:layout_constraintBottom_toBottomOf="@+id/drawView" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewPopupTools"
+        android:layout_width="100dp"
+        android:layout_height="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
