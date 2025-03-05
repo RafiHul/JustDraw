@@ -1,9 +1,12 @@
 package com.rafih.justdraw.tools
 
 import android.graphics.Canvas
+import android.graphics.Path
 import android.graphics.RectF
 import android.view.MotionEvent
+import com.rafih.justdraw.util.ShapeToolType
 import kotlin.math.abs
+import kotlin.math.hypot
 
 class ShapeTool: Tools() {
 
@@ -11,6 +14,10 @@ class ShapeTool: Tools() {
     private var startY: Float = 0f
     private var currentX: Float = 0f
     private var currentY: Float = 0f
+
+    private var currentShape: ShapeToolType = ShapeToolType.RECTANGLE
+
+    private val shapePath = Path()
 
     private var isDrawing = false
 
@@ -48,24 +55,68 @@ class ShapeTool: Tools() {
         if (!isDrawing || canvas == null) return
 
         // Draw shape based on type
-        shapeRect.set(
-            minOf(startX, currentX),
-            minOf(startY, currentY),
-            maxOf(startX, currentX),
-            maxOf(startY, currentY)
-        )
-        canvas.drawRect(shapeRect, this)
+        when (currentShape) {
+            ShapeToolType.RECTANGLE -> {
+                shapeRect.set(
+                    minOf(startX, currentX),
+                    minOf(startY, currentY),
+                    maxOf(startX, currentX),
+                    maxOf(startY, currentY)
+                )
+                canvas.drawRect(shapeRect, this)
+            }
+            ShapeToolType.CIRCLE -> {
+                // Calculate radius based on distance
+                val radius = hypot(
+                    (currentX - startX).toDouble(),
+                    (currentY - startY).toDouble()
+                ).toFloat()
+                canvas.drawCircle(startX, startY, radius, this)
+            }
+            ShapeToolType.TRIANGLE -> {
+                shapePath.reset()
+                shapePath.moveTo(startX, startY)
+                shapePath.lineTo(currentX, currentY)
+                shapePath.lineTo(startX - (currentX - startX), currentY)
+                shapePath.close()
+                canvas.drawPath(shapePath, this)
+            }
+            ShapeToolType.LINE -> {
+                canvas.drawLine(startX, startY, currentX, currentY, this)
+            }
+        }
     }
 
     fun drawShapeOnCanvas(canvas: Canvas?) {
-        // Draw shape based on type
-        shapeRect.set(
-            minOf(startX, currentX),
-            minOf(startY, currentY),
-            maxOf(startX, currentX),
-            maxOf(startY, currentY)
-        )
-        canvas?.drawRect(shapeRect, this)
+        when (currentShape) {
+            ShapeToolType.RECTANGLE -> {
+                shapeRect.set(
+                    minOf(startX, currentX),
+                    minOf(startY, currentY),
+                    maxOf(startX, currentX),
+                    maxOf(startY, currentY)
+                )
+                canvas?.drawRect(shapeRect, this)
+            }
+            ShapeToolType.CIRCLE -> {
+                val radius = hypot(
+                    (currentX - startX).toDouble(),
+                    (currentY - startY).toDouble()
+                ).toFloat()
+                canvas?.drawCircle(startX, startY, radius, this)
+            }
+            ShapeToolType.TRIANGLE -> {
+                shapePath.reset()
+                shapePath.moveTo(startX, startY)
+                shapePath.lineTo(currentX, currentY)
+                shapePath.lineTo(startX - (currentX - startX), currentY)
+                shapePath.close()
+                canvas?.drawPath(shapePath, this)
+            }
+            ShapeToolType.LINE -> {
+                canvas?.drawLine(startX, startY, currentX, currentY, this)
+            }
+        }
     }
 
     fun getCurrentDimensions(): String {
