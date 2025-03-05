@@ -61,10 +61,11 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/imageViewMainTool"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@color/white"
                 android:src="@drawable/baseline_brush_24" />
 
             <ImageButton

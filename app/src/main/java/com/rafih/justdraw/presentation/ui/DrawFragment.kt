@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.slider.Slider
@@ -48,21 +48,23 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         setUpRecyclerViewTopTools()
         setUpColorPallete()
 
-        binding.imageButtonFillColor.setOnClickListener{
-            drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,binding.imageButtonFillColor, binding.sliderSize ,Color.BLACK)
-        }
-
         binding.imageViewMainTool.setOnClickListener{
             topToolsAdapter.changeToolItemList(mainToolItem)
             topToolsAdapter.actionClick = { toolDrawable, tool ->
-                setUpMainToolButton(it as ImageView, toolDrawable, tool as MainDrawTool)
+                setUpMainToolButton(it as ImageButton, toolDrawable, tool as MainDrawTool)
             }
         }
 
+        binding.imageButtonFillColor.setOnClickListener{
+            drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,it as ImageButton, binding.sliderSize, Color.BLACK)
+        }
+
         binding.imageButtonShapeTool.setOnClickListener{
+            drawView.changeSecUseTool(SecDrawTool.SHAPE, it as ImageButton, binding.sliderSize, Color.BLACK)
             topToolsAdapter.changeToolItemList(shapeToolItem)
             topToolsAdapter.actionClick = { toolDrawable, tool ->
-                setUpShapeToolButton(it as ImageView,toolDrawable, tool as ShapeToolType)
+//                setUpShapeToolButton(it as ImageView,toolDrawable, tool as ShapeToolType)
+                // TODO: this for change shape type
             }
         }
 
@@ -133,21 +135,22 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         }
     }
 
-    fun changeToolImage(imageView: ImageView, toolDrawable: Drawable){
-        imageView.setImageDrawable(toolDrawable)
+    fun changeToolImage(imageButton: ImageButton, toolDrawable: Drawable){
+        imageButton.setImageDrawable(toolDrawable)
     }
 
-    fun setUpMainToolButton(imageView: ImageView, toolDrawable: Drawable, tool: MainDrawTool){
-        changeToolImage(imageView, toolDrawable)
+    fun setUpMainToolButton(imageButton: ImageButton, toolDrawable: Drawable, tool: MainDrawTool){
+        changeToolImage(imageButton, toolDrawable)
         drawView.changeMainUseTool(tool) //return picked tools size
         binding.sliderSize.value = drawView.getCurrentToolSize() // TODO: bugs when tools change, show tools size indicator
     }
 
-    fun setUpShapeToolButton(imageView: ImageView, toolDrawable: Drawable,tool: ShapeToolType){
-        changeToolImage(imageView, toolDrawable)
+//    fun setUpShapeToolButton(imageButton: ImageButton, toolDrawable: Drawable,tool: ShapeToolType){
+//        changeToolImage(imageButton, toolDrawable)
+//        drawView.changeSecUseTool()
 //        drawView.changeMainUseTool(tool) //return picked tools size
-//        binding.sliderSize.value = drawView.getCurrentToolSize() //
-    }
+//        binding.sliderSize.value = drawView.getCurrentToolSize()
+//    }
 
     private fun getDrawableFromContext(resid: Int): Drawable? {
         return ContextCompat.getDrawable(requireContext(), resid)

@@ -31,7 +31,7 @@ class DrawView: View {
     private val secTool = SecToolInit()
     private val touchIndicator = TouchIndicator(x = null, y = null)
     private var currentMainTool: Tools = mainTool.brush //default first main tool used
-    private var currentSecTool: Tools? = null //default first sec tool used / null
+    private var currentSecTool: Pair<ImageButton, Tools>? = null //default first sec tool used / null
 
     private lateinit var scaleGesture: ScaleGestureDetector
     private lateinit var drawPath: Path
@@ -103,17 +103,17 @@ class DrawView: View {
         super.onDraw(canvas)
         val centerX = width / 2f
         val centerY = (height / 2f) + (width / 4f)
+        val currentSecTools = currentSecTool?.second // <Button Id, DrawToolType>
 
         //main draw
         canvas.drawBitmap(myBitmap, bitmapMatrix, myPaint)
 
-        if (currentSecTool is ShapeTool) {
-            val shapeTool = currentSecTool as ShapeTool
-            if (shapeTool.isCurrentlyDrawing()) {
+        if (currentSecTools is ShapeTool) {
+            if (currentSecTools.isCurrentlyDrawing()) {
 
-                shapeTool.drawShapePreview(canvas)
+                currentSecTools.drawShapePreview(canvas)
 
-                val dimensions = shapeTool.getCurrentDimensions()
+                val dimensions = currentSecTools.getCurrentDimensions()
                 canvas.drawText(dimensions, 20f, 60f, textPaint)
             }
         }
@@ -148,14 +148,15 @@ class DrawView: View {
         scaleGesture.onTouchEvent(event)
         val x = event.x
         val y = event.y
+        val currentSecTools = currentSecTool?.second
 
-        if (currentSecTool is ShapeTool) { //untuk membuat shape
-            val shapeTool = currentSecTool as ShapeTool
-            val result = shapeTool.onTouchEvent(event) //change toucheventlistener
+        //untuk membuat shape
+        if (currentSecTools is ShapeTool) {
+            val result = currentSecTools.onTouchEvent(event) //change toucheventlistener
             if (event.action == MotionEvent.ACTION_UP) {
                 saveBitmapForUndo()
 
-                shapeTool.drawShapeOnCanvas(myCanvas)
+                currentSecTools.drawShapeOnCanvas(myCanvas)
             }
 
             invalidate()
@@ -169,9 +170,8 @@ class DrawView: View {
                 touchIndicator.setTouchIndicatorPosition(x,y)
 
                 //add other validation
-                if(currentSecTool is FillColor){
-                    val fillTool = currentSecTool as FillColor
-                    fillTool.floodFill(x.toInt(), y.toInt(), myBitmap)
+                if(currentSecTools is FillColor){
+                    currentSecTools.floodFill(x.toInt(), y.toInt(), myBitmap)
                     invalidate()
                     return true
                 }
@@ -183,7 +183,7 @@ class DrawView: View {
             MotionEvent.ACTION_MOVE -> {
                 touchIndicator.setTouchIndicatorPosition(x,y)
 
-                if (currentSecTool !is FillColor){
+                if (currentSecTools !is FillColor){
                     drawPath.lineTo(x,y)
                     myCanvas!!.drawPath(drawPath,myPaint) //draw path to bitmap from canvas
                 }
@@ -200,7 +200,7 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
-        currentSecTool?.color = colorCode
+        currentSecTool?.second?.color = colorCode //change color sectool to, if sectool has selected
 
         if(currentMainTool is Eraser){ //eraser cannot change color
             mainTool.brush.color = colorCode
@@ -234,9 +234,9 @@ class DrawView: View {
     }
 
     fun changeSecUseTool(tool: SecDrawTool, imageButton: ImageButton, sliderSize: Slider ,selectedBackgroundColor: Int){
-
-        //view clicked before
-        if (currentSecTool != null){
+        val oldImageButton = currentSecTool?.first
+        //if view clicked again
+        if (currentSecTool != null && imageButton == oldImageButton){
             changeMainToolDrawProperty(currentMainTool)
             imageButton.setBackgroundColor(Color.WHITE) //set background button to default
             currentSecTool = null
@@ -245,14 +245,16 @@ class DrawView: View {
         }
 
         //view never clicked
+        //change previous button color to white if want to change to another sec tool
+        oldImageButton?.setBackgroundColor(Color.WHITE)
         when(tool){
             SecDrawTool.FILLCOLOR -> {
-                changeSecToolDrawProperty(secTool.fillColor)
+                changeSecToolDrawProperty(imageButton, secTool.fillColor)
                 imageButton.setBackgroundColor(selectedBackgroundColor)
                 sliderSize.visibility = GONE
             }
             SecDrawTool.SHAPE -> {
-                changeSecToolDrawProperty(secTool.shape)
+                changeSecToolDrawProperty(imageButton, secTool.shape)
                 imageButton.setBackgroundColor(selectedBackgroundColor)
                 sliderSize.visibility = GONE
             }
@@ -293,10 +295,10 @@ class DrawView: View {
         currentMainTool = nTool
     }
 
-    private fun changeSecToolDrawProperty(nTool: Tools){
+    private fun changeSecToolDrawProperty(imageButton: ImageButton, nTool: Tools){
         myPaint = nTool
-        currentSecTool = nTool //set current sectool to fillcolor
-        currentSecTool!!.color = currentMainTool.color //transfer main tool color to sec tool
+        currentSecTool = Pair(imageButton, nTool) //set new current sec tool with the button
+        currentSecTool!!.second.color = currentMainTool.color //transfer main tool color to sec tool
     }
 
     companion object{
