@@ -129,4 +129,8 @@ class ShapeTool: Tools() {
     fun isCurrentlyDrawing(): Boolean {
         return isDrawing
     }
+
+    fun changeShapeType(nShapeType: ShapeToolType){
+        currentShape = nShapeType
+    }
 }

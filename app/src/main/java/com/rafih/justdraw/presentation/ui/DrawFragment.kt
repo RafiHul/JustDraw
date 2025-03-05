@@ -49,13 +49,11 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         setUpColorPallete()
 
         binding.imageViewMainTool.setOnClickListener{
-            topToolsAdapter.changeToolItemList(mainToolItem)
-            topToolsAdapter.actionClick = { toolDrawable, tool ->
-                setUpMainToolButton(it as ImageButton, toolDrawable, tool as MainDrawTool)
-            }
+            mainToolRecyclerView()
         }
 
         binding.imageButtonFillColor.setOnClickListener{
+            mainToolRecyclerView()
             drawView.changeSecUseTool(SecDrawTool.FILLCOLOR,it as ImageButton, binding.sliderSize, Color.BLACK)
         }
 
@@ -63,8 +61,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
             drawView.changeSecUseTool(SecDrawTool.SHAPE, it as ImageButton, binding.sliderSize, Color.BLACK)
             topToolsAdapter.changeToolItemList(shapeToolItem)
             topToolsAdapter.actionClick = { toolDrawable, tool ->
-//                setUpShapeToolButton(it as ImageView,toolDrawable, tool as ShapeToolType)
-                // TODO: this for change shape type
+                setUpChangeShapeTypeToolButton(it, toolDrawable, tool as ShapeToolType)
             }
         }
 
@@ -99,6 +96,14 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         })
     }
 
+    //used for if tool dont have type like Fillcolor
+    private fun mainToolRecyclerView() {
+        topToolsAdapter.changeToolItemList(mainToolItem)
+        topToolsAdapter.actionClick = { toolDrawable, tool ->
+            setUpMainToolButton(binding.imageViewMainTool, toolDrawable, tool as MainDrawTool)
+        }
+    }
+
     private fun setUpColorPallete() {
         val arrColorPallete = resources.getStringArray(R.array.default_color_palettes)
 
@@ -115,7 +120,7 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
     private fun setUpToolItemListMap() {
         mainToolItem = mapOf(
             getDrawableFromContext(R.drawable.baseline_brush_24) to MainDrawTool.BRUSH,
-            getDrawableFromContext(R.drawable.eraser_svgrepo_com) to MainDrawTool.ERASER
+            getDrawableFromContext(R.drawable.baseline_zoom_in_24) to MainDrawTool.ERASER
         ).toList()
 
         shapeToolItem = mapOf(
@@ -145,12 +150,10 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
         binding.sliderSize.value = drawView.getCurrentToolSize() // TODO: bugs when tools change, show tools size indicator
     }
 
-//    fun setUpShapeToolButton(imageButton: ImageButton, toolDrawable: Drawable,tool: ShapeToolType){
-//        changeToolImage(imageButton, toolDrawable)
-//        drawView.changeSecUseTool()
-//        drawView.changeMainUseTool(tool) //return picked tools size
-//        binding.sliderSize.value = drawView.getCurrentToolSize()
-//    }
+    fun setUpChangeShapeTypeToolButton(imageButton: ImageButton, toolDrawable: Drawable, tool: ShapeToolType){
+        changeToolImage(imageButton, toolDrawable)
+        drawView.changeShapeType(tool)
+    }
 
     private fun getDrawableFromContext(resid: Int): Drawable? {
         return ContextCompat.getDrawable(requireContext(), resid)

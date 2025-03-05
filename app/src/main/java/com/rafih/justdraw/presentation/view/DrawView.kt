@@ -21,6 +21,7 @@ import com.rafih.justdraw.tools.ShapeTool
 import com.rafih.justdraw.tools.Tools
 import com.rafih.justdraw.util.MainDrawTool
 import com.rafih.justdraw.util.SecDrawTool
+import com.rafih.justdraw.util.ShapeToolType
 import java.util.Stack
 import kotlin.math.max
 import kotlin.math.min
@@ -31,7 +32,7 @@ class DrawView: View {
     private val secTool = SecToolInit()
     private val touchIndicator = TouchIndicator(x = null, y = null)
     private var currentMainTool: Tools = mainTool.brush //default first main tool used
-    private var currentSecTool: Pair<ImageButton, Tools>? = null //default first sec tool used / null
+    private var currentSecTool: Pair<ImageButton, Tools>? = null //<Button Id, DrawToolType>
 
     private lateinit var scaleGesture: ScaleGestureDetector
     private lateinit var drawPath: Path
@@ -103,11 +104,11 @@ class DrawView: View {
         super.onDraw(canvas)
         val centerX = width / 2f
         val centerY = (height / 2f) + (width / 4f)
-        val currentSecTools = currentSecTool?.second // <Button Id, DrawToolType>
 
         //main draw
         canvas.drawBitmap(myBitmap, bitmapMatrix, myPaint)
 
+        val currentSecTools = currentSecTool?.second // <Button Id, DrawToolType>
         if (currentSecTools is ShapeTool) {
             if (currentSecTools.isCurrentlyDrawing()) {
 
@@ -155,7 +156,6 @@ class DrawView: View {
             val result = currentSecTools.onTouchEvent(event) //change toucheventlistener
             if (event.action == MotionEvent.ACTION_UP) {
                 saveBitmapForUndo()
-
                 currentSecTools.drawShapeOnCanvas(myCanvas)
             }
 
@@ -200,7 +200,7 @@ class DrawView: View {
     }
 
     fun changeColor(colorCode: Int){
-        currentSecTool?.second?.color = colorCode //change color sectool to, if sectool has selected
+        currentSecTool?.second?.color = colorCode //change color sectool to, if sectool has selected/used
 
         if(currentMainTool is Eraser){ //eraser cannot change color
             mainTool.brush.color = colorCode
@@ -298,7 +298,14 @@ class DrawView: View {
     private fun changeSecToolDrawProperty(imageButton: ImageButton, nTool: Tools){
         myPaint = nTool
         currentSecTool = Pair(imageButton, nTool) //set new current sec tool with the button
-        currentSecTool!!.second.color = currentMainTool.color //transfer main tool color to sec tool
+        currentSecTool!!.second.color = mainTool.brush.color //transfer brush color to sec tool
+    }
+
+    fun changeShapeType(nShapeToolType: ShapeToolType){
+        val currentShapeTools = currentSecTool?.second
+        if (currentShapeTools is ShapeTool){
+            currentShapeTools.changeShapeType(nShapeToolType)
+        }
     }
 
     companion object{
