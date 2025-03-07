@@ -125,7 +125,10 @@ class DrawFragment : Fragment(R.layout.fragment_draw) {
 
         shapeToolItem = mapOf(
             getDrawableFromContext(R.drawable.outline_rectangle_24) to ShapeToolType.RECTANGLE,
-            getDrawableFromContext(R.drawable.outline_circle_24) to ShapeToolType.CIRCLE
+            getDrawableFromContext(R.drawable.outline_circle_24) to ShapeToolType.CIRCLE,
+            getDrawableFromContext(R.drawable.baseline_linear_scale_24) to ShapeToolType.LINE,
+            getDrawableFromContext(R.drawable.triangle_svgrepo_com) to ShapeToolType.TRIANGLE,
+
         ).toList()
     }
 
